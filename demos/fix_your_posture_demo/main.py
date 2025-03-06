@@ -105,22 +105,19 @@ def check_neck_posture(yaw, pitch, roll, feedback_buffer, feedback_interval=2, b
     if feedback_buffer and current_time - feedback_buffer[0][1] > buffer_duration:
         feedback_buffer.popleft()  # Remove old feedbacks
 
-    yaw_threshold = 18  # Adjusted threshold for head turning too far left or right
-    pitch_threshold = 20  # Adjusted threshold for head tilted too far downward
-    roll_threshold = 15  # Adjusted threshold for head tilting sideways too much
+    yaw_threshold = 20  # Adjusted threshold for head turning too far left or right
+    pitch_threshold = 25  # Adjusted threshold for head tilted too far downward
+    roll_threshold = 30  # Adjusted threshold for head tilting sideways too much
 
     feedback = "Good posture maintained."
     poor_posture = False
 
-    if abs(yaw) > yaw_threshold:
+    if abs(yaw) > yaw_threshold or abs(roll) > roll_threshold:
         poor_posture = True
         feedback = "You're turning your head too much! Sit up straight!"
-    elif abs(pitch) > pitch_threshold:
+    elif abs(pitch) > pitch_threshold :
         poor_posture = True
         feedback = "You're slouching too much! Sit up straight!"
-    elif abs(roll) > roll_threshold:
-        poor_posture = True
-        feedback = "You're tilting your head sideways too much! Sit up straight!"
 
     feedback_buffer.append((feedback, current_time, poor_posture))
 
@@ -150,9 +147,9 @@ def draw_pose_lines(frame, yaw, pitch, roll, keypoints):
     cv2.line(frame, tuple(center), roll_end, (0, 0, 255), 2)  # Red for roll
 
     # Draw text for yaw, pitch, roll in the center of the face
-    cv2.putText(frame, f"Y: {yaw:.2f}", (center[0] + 10, center[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    cv2.putText(frame, f"P: {pitch:.2f}", (center[0] + 10, center[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-    cv2.putText(frame, f"R: {roll:.2f}", (center[0] + 10, center[1] + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    # cv2.putText(frame, f"Y: {yaw:.2f}", (center[0] + 10, center[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    # cv2.putText(frame, f"P: {pitch:.2f}", (center[0] + 10, center[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+    # cv2.putText(frame, f"R: {roll:.2f}", (center[0] + 10, center[1] + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
     return frame
 
@@ -267,8 +264,8 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
                     feedback = posture_feedback
                     logging.info(posture_feedback)
                     color = (0, 255, 0) if feedback == "Good posture maintained." else (0, 0, 255)
-                    cv2.putText(frame, posture_feedback, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
+                    cv2.putText(frame, posture_feedback, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color,
+                                2)  # Reduced font size, not bold
                     # Show notification if posture is not good
                     if feedback != "Good posture maintained.":
                         toaster.show_toast("Posture Alert", feedback, duration=5, threaded=True)
