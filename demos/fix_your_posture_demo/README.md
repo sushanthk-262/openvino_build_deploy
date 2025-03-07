@@ -11,7 +11,7 @@ This project utilizes OpenVINO for real-time head pose estimation, detecting fac
 - Real-time feedback on neck posture
 - Notifications for poor posture (Win10toast notifications)
 
-![Good Posture](assets/good.png)
+![Good Posture](assets/ypr-good.png)
 ![Slouching](assets/slouch.png)
 ![Head Turn](assets/headturn.png)
 
