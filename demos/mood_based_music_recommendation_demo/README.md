@@ -21,6 +21,8 @@ Step 2: Set up the environment
 
 Step 3: Run the Application
 
+Step 4: Add songs according to your mood in the respective emotions directories
+
 Now, let's dive into the steps starting with installing Python. 
 
 ## Step 0
