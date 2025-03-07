@@ -86,6 +86,7 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
     cap = None
     emotion_buffer = collections.deque(maxlen=10)  # Buffer to store emotions for 10 seconds
     toaster = ToastNotifier()  # Initialize the toaster for notifications
+    emotion_labels = ["happy", "sad", "angry", "neutral"]  # Define emotion labels
     try:
         # Load model
         emotion_model_path = download_model(emotion_model_name, model_precision)
@@ -99,7 +100,7 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
 
         # Set window properties
         cv2.namedWindow("Emotion Recognition", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty("Emotion Recognition", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("Emotion Recognition", 1280, 720)  # Set window size to 720p
 
         start_time = time.time()
         while True:
@@ -119,9 +120,14 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
                 start_time = time.time()  # Reset the timer
 
             # Display result
+            emotion_text = emotion_labels[emotion]
+            cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
             cv2.imshow("Emotion Recognition", frame)
 
-            if cv2.waitKey(1) & 0xFF == 27:
+            if cv2.waitKey(1) & 0xFF == 27:  # Check for ESC key to exit
+                break
+
+            if cv2.getWindowProperty("Emotion Recognition", cv2.WND_PROP_VISIBLE) < 1:  # Check if window is closed
                 break
 
     except Exception as e:
