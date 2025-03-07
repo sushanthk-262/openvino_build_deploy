@@ -81,7 +81,7 @@ def play_music(emotion, music_dir):
         pygame.mixer.music.load(random.choice(music_files))
         pygame.mixer.music.play()
 
-def run_demo(source, emotion_model_name, model_precision, device, music_dir):
+def run_demo(source, emotion_model_name, model_precision, device, music_dir, flip):
     """Run the emotion recognition demo."""
     cap = None
     emotion_buffer = collections.deque(maxlen=60)  # Buffer to store emotions for 1 minute
@@ -107,6 +107,9 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
             if not ret:
                 logging.warning("End of video stream.")
                 break
+
+            if flip:
+                frame = cv2.flip(frame, 1)  # Flip the frame horizontally
 
             # Detect emotion
             emotion = detect_emotions(frame, emotion_model, emotion_input, emotion_output)
@@ -162,6 +165,7 @@ if __name__ == '__main__':
     parser.add_argument('--emotion_model_name', type=str, default="emotions-recognition-retail-0003", help="Emotion recognition model to be used")
     parser.add_argument('--model_precision', type=str, default="FP32", choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
     parser.add_argument('--music_dir', type=str, required=True, help="Directory containing music files organized by emotion")
+    parser.add_argument('--flip', action='store_true', help="Flip the video stream horizontally")
 
     args = parser.parse_args()
-    run_demo(args.stream, args.emotion_model_name, args.model_precision, args.device, args.music_dir)
+    run_demo(args.stream, args.emotion_model_name, args.model_precision, args.device, args.music_dir, args.flip)
