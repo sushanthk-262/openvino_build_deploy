@@ -8,7 +8,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from openvino import Core
+import openvino as ov
 from numpy.lib.stride_tricks import as_strided
 
 warnings.filterwarnings("ignore", category=UserWarning, module="cv2")  # Suppress PNG warnings
@@ -52,7 +52,7 @@ def download_model(model_name, precision):
 
 
 def load_model(model_path, device):
-    core = Core()
+    core = ov.Core()
     model = core.read_model(model=model_path)
     compiled_model = core.compile_model(model=model, device_name=device)
     input_layer = compiled_model.input(0)
@@ -252,7 +252,7 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
     fd_model, fd_input, fd_output = load_model(face_detection_model_path, device)
     fl_model, fl_input, fl_output = load_model(face_landmarks_model_path, device)
     fe_model, fe_input, fe_output = load_model(face_emotions_model_path, device)
-    pose_model = Core().compile_model(Core().read_model(pose_model_path), device)
+    pose_model = ov.Core().compile_model(ov.Core().read_model(pose_model_path), device)
 
     fd_height, fd_width = list(fd_input.shape)[2:4]
     fl_height, fl_width = list(fl_input.shape)[2:4]
@@ -279,13 +279,13 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
     player = None
     try:
         source = int(source) if isinstance(source, str) and source.isnumeric() else source
-        player = utils.VideoPlayer(source=source, flip=flip, size=(1920, 1080), fps=30)
+        player = utils.VideoPlayer(source=source, flip=flip, size=(1280, 720), fps=30)  # Reduced resolution
         player.start()
         title = "Press ESC to Exit"
         cv2.namedWindow(title, cv2.WINDOW_GUI_NORMAL)
         cv2.setWindowProperty(title, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-        processing_times = collections.deque()
+        processing_times = collections.deque(maxlen=200)  # Limit the size of the deque
         while True:
             frame = player.next()
             if frame is None:
@@ -299,9 +299,7 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
             emotions = recognize_emotions(frame, boxes) if theme == "santa" else []
 
             if theme == "spooky":
-                pose_input = \
-                cv2.resize(frame, pose_input_shape[::-1], interpolation=cv2.INTER_AREA).transpose((2, 0, 1))[
-                    np.newaxis, ...]
+                pose_input = cv2.resize(frame, pose_input_shape[::-1], interpolation=cv2.INTER_AREA).transpose((2, 0, 1))[np.newaxis, ...]
                 pose_results = pose_model([pose_input])
                 poses, scores = process_poses(frame, pose_results[pose_model.output("Mconv7_stage2_L1")],
                                               pose_results[pose_model.output("Mconv7_stage2_L2")], pose_model, decoder)
@@ -315,8 +313,6 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
 
             stop_time = time.time()
             processing_times.append(stop_time - start_time)
-            if len(processing_times) > 200:
-                processing_times.popleft()
 
             utils.draw_ov_watermark(frame)
             fps = 1000 / (np.mean(processing_times) * 1000)
@@ -335,7 +331,7 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
                     fd_model, fd_input, fd_output = load_model(face_detection_model_path, dev)
                     fl_model, fl_input, fl_output = load_model(face_landmarks_model_path, dev)
                     fe_model, fe_input, fe_output = load_model(face_emotions_model_path, dev)
-                    pose_model = Core().compile_model(Core().read_model(pose_model_path), dev)
+                    pose_model = ov.Core().compile_model(ov.Core().read_model(pose_model_path), dev)
                     device = dev
                     processing_times.clear()
 
