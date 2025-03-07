@@ -1,3 +1,4 @@
+from utils import demo_utils as utils
 import cv2
 import numpy as np
 import requests
@@ -12,9 +13,13 @@ import sys
 from win10toast import ToastNotifier
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
-SCRIPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "utils")
+SCRIPT_DIR = os.path.join(
+    os.path.dirname(
+        os.path.abspath(__file__)),
+    "..",
+    "utils")
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-from utils import demo_utils as utils
+
 
 def download_model(model_name, precision):
     """Download the required OpenVINO model if not already present."""
@@ -45,6 +50,7 @@ def download_model(model_name, precision):
     logging.info(f"Using model at {model_path}")
     return model_path
 
+
 def load_model(model_path, device):
     """Load the OpenVINO model."""
     core = Core()
@@ -52,7 +58,8 @@ def load_model(model_path, device):
     compiled_model = core.compile_model(model=model, device_name=device)
 
     input_layer = compiled_model.input(0)
-    output_layers = [compiled_model.output(i) for i in range(len(compiled_model.outputs))]  # Handle multiple outputs
+    output_layers = [compiled_model.output(i) for i in range(
+        len(compiled_model.outputs))]  # Handle multiple outputs
 
     logging.info(f"Loaded model: {model_path}")
     logging.info(f"Input layer shape: {input_layer.shape}")
@@ -60,6 +67,7 @@ def load_model(model_path, device):
         logging.info(f"Output layer {i} shape: {output_layer.shape}")
 
     return compiled_model, input_layer, output_layers
+
 
 def preprocess_head_pose_input(frame, keypoints):
     """Extract the face region and preprocess it for model input."""
@@ -70,10 +78,12 @@ def preprocess_head_pose_input(frame, keypoints):
         return None
 
     input_img = cv2.resize(face_region, (60, 60))  # Resize to (60, 60)
-    input_img = input_img.transpose(2, 0, 1)[np.newaxis, ...].astype(np.float32)  # Shape: (1, 3, 60, 60)
+    input_img = input_img.transpose(2, 0, 1)[np.newaxis, ...].astype(
+        np.float32)  # Shape: (1, 3, 60, 60)
 
     logging.debug(f"Preprocessed input shape: {input_img.shape}")
     return input_img
+
 
 def extract_face_region(frame, keypoints):
     """Extract the face region using detected keypoints."""
@@ -99,10 +109,18 @@ def extract_face_region(frame, keypoints):
         logging.error(f"Error extracting face region: {e}")
         return None
 
-def check_neck_posture(yaw, pitch, roll, feedback_buffer, feedback_interval=2, buffer_duration=10):
+
+def check_neck_posture(
+        yaw,
+        pitch,
+        roll,
+        feedback_buffer,
+        feedback_interval=2,
+        buffer_duration=10):
     """Check for poor neck posture and return feedback."""
     current_time = time.time()
-    if feedback_buffer and current_time - feedback_buffer[0][1] > buffer_duration:
+    if feedback_buffer and current_time - \
+            feedback_buffer[0][1] > buffer_duration:
         feedback_buffer.popleft()  # Remove old feedbacks
 
     yaw_threshold = 20  # Adjusted threshold for head turning too far left or right
@@ -115,7 +133,7 @@ def check_neck_posture(yaw, pitch, roll, feedback_buffer, feedback_interval=2, b
     if abs(yaw) > yaw_threshold or abs(roll) > roll_threshold:
         poor_posture = True
         feedback = "You're turning your head too much! Sit up straight!"
-    elif abs(pitch) > pitch_threshold :
+    elif abs(pitch) > pitch_threshold:
         poor_posture = True
         feedback = "You're slouching too much! Sit up straight!"
 
@@ -131,15 +149,23 @@ def check_neck_posture(yaw, pitch, roll, feedback_buffer, feedback_interval=2, b
         return feedback, current_time, poor_posture
 
     return "Good posture maintained.", current_time, False
+
+
 def draw_pose_lines(frame, yaw, pitch, roll, keypoints):
     """Draw lines on the face to visualize the detected angles."""
     center = np.mean(keypoints, axis=0).astype(int)
     length = 50
 
     # Calculate end points for the lines
-    yaw_end = (int(center[0] + length * np.sin(np.radians(yaw))), int(center[1] - length * np.cos(np.radians(yaw))))
-    pitch_end = (int(center[0] + length * np.sin(np.radians(pitch))), int(center[1] + length * np.cos(np.radians(pitch))))
-    roll_end = (int(center[0] + length * np.cos(np.radians(roll))), int(center[1] + length * np.sin(np.radians(roll))))
+    yaw_end = (int(center[0] + length * np.sin(np.radians(yaw))),
+               int(center[1] - length * np.cos(np.radians(yaw))))
+    pitch_end = (int(center[0] +
+                     length *
+                     np.sin(np.radians(pitch))), int(center[1] +
+                                                     length *
+                                                     np.cos(np.radians(pitch))))
+    roll_end = (int(center[0] + length * np.cos(np.radians(roll))),
+                int(center[1] + length * np.sin(np.radians(roll))))
 
     # Draw lines with different lengths and directions
     cv2.line(frame, tuple(center), yaw_end, (0, 255, 0), 2)  # Green for yaw
@@ -153,6 +179,7 @@ def draw_pose_lines(frame, yaw, pitch, roll, keypoints):
 
     return frame
 
+
 def detect_keypoints(frame, model, input_layer, output_layer):
     """Detect keypoints using the facial landmark model."""
     if frame is None or frame.size == 0:
@@ -160,9 +187,13 @@ def detect_keypoints(frame, model, input_layer, output_layer):
         return None
 
     input_img = cv2.resize(frame, (input_layer.shape[2], input_layer.shape[3]))
-    input_img = input_img.transpose(2, 0, 1)[np.newaxis, ...].astype(np.float32)  # Shape: (1, 3, H, W)
+    input_img = input_img.transpose(
+        2, 0, 1)[
+        np.newaxis, ...].astype(
+            np.float32)  # Shape: (1, 3, H, W)
 
-    results = model([input_img])[output_layer[0]]  # Access the first (and only) output layer
+    # Access the first (and only) output layer
+    results = model([input_img])[output_layer[0]]
 
     # Reshape to (35, 2) since we have 35 (x, y) keypoints
     keypoints = results.reshape(35, 2)
@@ -173,12 +204,18 @@ def detect_keypoints(frame, model, input_layer, output_layer):
 
     return keypoints
 
+
 def detect_faces(frame, model, input_layer, output_layer):
     """Detect faces using the face detection model."""
-    input_img = cv2.resize(frame, (input_layer.shape[3], input_layer.shape[2]))  # Resize to (672, 384)
-    input_img = input_img.transpose(2, 0, 1)[np.newaxis, ...].astype(np.float32)  # Shape: (1, 3, 384, 672)
+    input_img = cv2.resize(
+        frame,
+        (input_layer.shape[3],
+         input_layer.shape[2]))  # Resize to (672, 384)
+    input_img = input_img.transpose(2, 0, 1)[np.newaxis, ...].astype(
+        np.float32)  # Shape: (1, 3, 384, 672)
 
-    results = model([input_img])[output_layer[0]]  # Access the first (and only) output layer
+    # Access the first (and only) output layer
+    results = model([input_img])[output_layer[0]]
 
     # Extract bounding boxes
     boxes = []
@@ -192,7 +229,15 @@ def detect_faces(frame, model, input_layer, output_layer):
 
     return boxes
 
-def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_model_name, model_precision, device, flip):
+
+def run_demo(
+        source,
+        face_detection_model_name,
+        head_pose_model_name,
+        keypoint_model_name,
+        model_precision,
+        device,
+        flip):
     """Run the head pose detection demo."""
     cap = None
     feedback_buffer = collections.deque()  # Initialize feedback buffer
@@ -200,14 +245,20 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
     toaster = ToastNotifier()  # Initialize the toaster for notifications
     try:
         # Load models
-        face_detection_model_path = download_model(face_detection_model_name, model_precision)
-        face_detection_model, face_detection_input, face_detection_output = load_model(face_detection_model_path, device)
+        face_detection_model_path = download_model(
+            face_detection_model_name, model_precision)
+        face_detection_model, face_detection_input, face_detection_output = load_model(
+            face_detection_model_path, device)
 
-        head_pose_model_path = download_model(head_pose_model_name, model_precision)
-        head_pose_model, head_pose_input, head_pose_outputs = load_model(head_pose_model_path, device)
+        head_pose_model_path = download_model(
+            head_pose_model_name, model_precision)
+        head_pose_model, head_pose_input, head_pose_outputs = load_model(
+            head_pose_model_path, device)
 
-        keypoint_model_path = download_model(keypoint_model_name, model_precision)
-        keypoint_model, keypoint_input, keypoint_output = load_model(keypoint_model_path, device)
+        keypoint_model_path = download_model(
+            keypoint_model_name, model_precision)
+        keypoint_model, keypoint_input, keypoint_output = load_model(
+            keypoint_model_path, device)
 
         cap = cv2.VideoCapture(int(source) if source.isnumeric() else source)
 
@@ -217,7 +268,10 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
 
         # Set window properties
         cv2.namedWindow("Head Pose Estimation", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty("Head Pose Estimation", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+        cv2.setWindowProperty(
+            "Head Pose Estimation",
+            cv2.WND_PROP_FULLSCREEN,
+            cv2.WINDOW_NORMAL)
 
         while True:
             ret, frame = cap.read()
@@ -232,14 +286,19 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
             start_time = time.time()
 
             # Detect faces
-            boxes = detect_faces(frame, face_detection_model, face_detection_input, face_detection_output)
+            boxes = detect_faces(
+                frame,
+                face_detection_model,
+                face_detection_input,
+                face_detection_output)
 
             for box in boxes:
                 x, y, w, h = box
-                face_frame = frame[y:y+h, x:x+w]
+                face_frame = frame[y:y + h, x:x + w]
 
                 # Detect keypoints
-                keypoints = detect_keypoints(face_frame, keypoint_model, keypoint_input, keypoint_output)
+                keypoints = detect_keypoints(
+                    face_frame, keypoint_model, keypoint_input, keypoint_output)
 
                 if keypoints is None or keypoints.shape[0] == 0:
                     logging.error("No keypoints detected.")
@@ -258,23 +317,39 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
 
                 # Extract yaw, pitch, roll
                 yaw, pitch, roll = yaw[0][0], pitch[0][0], roll[0][0]
-                posture_feedback, _, poor_posture = check_neck_posture(yaw, pitch, roll, feedback_buffer)
+                posture_feedback, _, poor_posture = check_neck_posture(
+                    yaw, pitch, roll, feedback_buffer)
 
                 if posture_feedback:
                     feedback = posture_feedback
                     logging.info(posture_feedback)
-                    color = (0, 255, 0) if feedback == "Good posture maintained." else (0, 0, 255)
-                    cv2.putText(frame, posture_feedback, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color,
-                                2)  # Reduced font size, not bold
+                    color = (
+                        0,
+                        255,
+                        0) if feedback == "Good posture maintained." else (
+                        0,
+                        0,
+                        255)
+                    cv2.putText(
+                        frame,
+                        posture_feedback,
+                        (x,
+                         y - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.5,
+                        color,
+                        2)  # Reduced font size, not bold
                     # Show notification if posture is not good
                     if feedback != "Good posture maintained.":
-                        toaster.show_toast("Posture Alert", feedback, duration=5, threaded=True)
+                        toaster.show_toast(
+                            "Posture Alert", feedback, duration=5, threaded=True)
 
                 # Draw pose lines
-                face_frame = draw_pose_lines(face_frame, yaw, pitch, roll, keypoints)
+                face_frame = draw_pose_lines(
+                    face_frame, yaw, pitch, roll, keypoints)
 
                 # Replace the face region in the original frame
-                frame[y:y+h, x:x+w] = face_frame
+                frame[y:y + h, x:x + w] = face_frame
 
                 # Draw bounding box around the face
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -289,8 +364,16 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
             # Calculate mean processing time and FPS
             processing_time = np.mean(processing_times) * 1000
             fps = 1000 / processing_time
-            utils.draw_text(frame, text=f"Currently running models ({model_precision}) on {device}", point=(10, 10))
-            utils.draw_text(frame, f"Inference time: {processing_time:.1f}ms ({fps:.1f} FPS)", (10, 50))
+            utils.draw_text(
+                frame,
+                text=f"Currently running models ({model_precision}) on {device}",
+                point=(
+                    10,
+                    10))
+            utils.draw_text(
+                frame, f"Inference time: {
+                    processing_time:.1f}ms ({
+                    fps:.1f} FPS)", (10, 50))
 
             # Display result
             cv2.imshow("Head Pose Estimation", frame)
@@ -309,17 +392,54 @@ def run_demo(source, face_detection_model_name, head_pose_model_name, keypoint_m
             cap.release()
         cv2.destroyAllWindows()
 
+
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stream', default="0", type=str, help="Video file path or webcam ID")
-    parser.add_argument('--device', default="AUTO", type=str, help="Device to start inference on")
-    parser.add_argument('--face_detection_model_name', type=str, default="face-detection-adas-0001", help="Face detection model to be used")
-    parser.add_argument('--head_pose_model_name', type=str, default="head-pose-estimation-adas-0001", help="Head pose estimation model to be used")
-    parser.add_argument('--keypoint_model_name', type=str, default="facial-landmarks-35-adas-0002", help="Keypoint detection model to be used")
-    parser.add_argument('--model_precision', type=str, default="FP32", choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
-    parser.add_argument('--flip', type=bool, default=True, help="Flip input video")
+    parser.add_argument('--stream', default="0", type=str,
+                        help="Video file path or webcam ID")
+    parser.add_argument(
+        '--device',
+        default="AUTO",
+        type=str,
+        help="Device to start inference on")
+    parser.add_argument(
+        '--face_detection_model_name',
+        type=str,
+        default="face-detection-adas-0001",
+        help="Face detection model to be used")
+    parser.add_argument(
+        '--head_pose_model_name',
+        type=str,
+        default="head-pose-estimation-adas-0001",
+        help="Head pose estimation model to be used")
+    parser.add_argument(
+        '--keypoint_model_name',
+        type=str,
+        default="facial-landmarks-35-adas-0002",
+        help="Keypoint detection model to be used")
+    parser.add_argument(
+        '--model_precision',
+        type=str,
+        default="FP32",
+        choices=[
+            "FP16-INT8",
+            "FP16",
+            "FP32"],
+        help="Model precision")
+    parser.add_argument(
+        '--flip',
+        type=bool,
+        default=True,
+        help="Flip input video")
 
     args = parser.parse_args()
-    run_demo(args.stream, args.face_detection_model_name, args.head_pose_model_name, args.keypoint_model_name, args.model_precision, args.device, args.flip)
+    run_demo(
+        args.stream,
+        args.face_detection_model_name,
+        args.head_pose_model_name,
+        args.keypoint_model_name,
+        args.model_precision,
+        args.device,
+        args.flip)
