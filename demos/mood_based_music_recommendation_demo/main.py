@@ -118,7 +118,7 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir, fli
             logging.debug(f"Emotion buffer: {[emotion_labels[e] for e in emotion_buffer]}")
 
             # Calculate dominant emotion every 1 minute
-            if time.time() - start_time > 60:
+            if time.time() - start_time > 40:
                 dominant_emotion = max(set(emotion_buffer), key=emotion_buffer.count)
                 logging.info(f"Dominant emotion: {emotion_labels[dominant_emotion]}")
                 play_music(dominant_emotion, music_dir)
