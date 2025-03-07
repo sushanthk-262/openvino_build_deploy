@@ -9,9 +9,9 @@ This project utilizes OpenVINO for real-time emotion recognition from video stre
 - Motivational text display based on emotions
 - Logging of detected emotions and dominant emotions
 
-![Good Posture](assets/ypr-good.png)
-![Slouching](assets/slouch.png)
-![Head Turn](assets/headturn.png)
+![happy](assets/happy.png)
+![neutral](assets/neutral.png)
+![sad Turn](assets/sad.png)
 
 Here are the steps involved in this demo:
 
