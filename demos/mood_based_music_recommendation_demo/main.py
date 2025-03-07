@@ -208,9 +208,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--stream', default="0", type=str, help="Video file path or webcam ID")
     parser.add_argument('--device', default="AUTO", type=str, help="Device to start inference on")
-    parser.add_argument('--emotion_model_name', type=str, default="emotions-recognition-retail-0003", help="Emotion recognition model to be used")
-    parser.add_argument('--model_precision', type=str, default="FP32", choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
-    parser.add_argument('--music_dir', type=str, required=True, help="Directory containing music files organized by emotion")
+    parser.add_argument('--emotion_model_name', type=str,
+                        default="emotions-recognition-retail-0003",
+                        help="Emotion recognition model to be used")
+    parser.add_argument('--model_precision', type=str, default="FP32",
+                        choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
+    parser.add_argument('--music_dir', type=str, required=True,
+                        help="Directory containing music files organized by emotion")
     parser.add_argument('--flip', action='store_true', help="Flip the video stream horizontally")
 
     args = parser.parse_args()
