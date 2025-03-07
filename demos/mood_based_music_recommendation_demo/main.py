@@ -122,6 +122,18 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
             # Display result
             emotion_text = emotion_labels[emotion]
             cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+
+            # Add motivational text based on emotion
+            if emotion_text in ["neutral", "angry"]:
+                motivational_text = "Common! cheer up, bring out that beautiful smile you've got"
+            elif emotion_text == "sad":
+                motivational_text = "Common now, don't be sad, cheer up!!"
+            elif emotion_text == "happy":
+                motivational_text = "That's the spirit! Always gotta be happy and smiling :)"
+            else:
+                motivational_text = ""
+
+            cv2.putText(frame, motivational_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
             cv2.imshow("Emotion Recognition", frame)
 
             if cv2.waitKey(1) & 0xFF == 27:  # Check for ESC key to exit
