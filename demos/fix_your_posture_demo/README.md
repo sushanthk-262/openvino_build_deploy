@@ -11,7 +11,9 @@ This project demonstrates head pose estimation using OpenVINO models. It detects
 - Real-time feedback on neck posture
 - Notifications for poor posture (Win10toast notifications)
 
-![image](https://github.com/openvinotoolkit/openvino_build_deploy/assets/4547501/0cbf768c-0260-41bc-af64-00dfdaa9110c)
+![image](demos/fix_your_posture_demo/assets/good.png)
+![image](demos/fix_your_posture_demo/assets/slouch.png)
+![image](demos/fix_your_posture_demo/assets/headturn.png)
 
 Here are the steps involved in this demo:
 
@@ -72,7 +74,7 @@ Activate the virtual environment using the following command:
 source venv/bin/activate   # For Unix-based operating system such as Linux or macOS
 ```
 
-_NOTE: If you are using Windows, use `venv\Scripts\activate` command instead._
+_NOTE: If you are using Windows (Command Prompt), use `venv\Scripts\activate` command instead and use `venv\Scripts\Activate.ps1` for Windows (PowerShell).
 
 This will activate the virtual environment and change your shell's prompt to indicate that you are now working within that environment.
 
