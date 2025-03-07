@@ -180,7 +180,7 @@ def run_demo(
             else:
                 motivational_text = "Let's surprise us with a smile! :)"
 
-            cv2.putText(frame, motivational_text, (10, 60), 
+            cv2.putText(frame, motivational_text, (10, 60),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255),
                         2, cv2.LINE_AA)  # Red color for motivational text
             cv2.imshow("Emotion Recognition", frame)
@@ -206,8 +206,13 @@ if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stream', default="0", type=str, help="Video file path or webcam ID")
-    parser.add_argument('--device', default="AUTO", type=str, help="Device to start inference on")
+    parser.add_argument('--stream', default="0", type=str,
+                        help="Video file path or webcam ID")
+    parser.add_argument(
+        '--device',
+        default="AUTO",
+        type=str,
+        help="Device to start inference on")
     parser.add_argument('--emotion_model_name', type=str,
                         default="emotions-recognition-retail-0003",
                         help="Emotion recognition model to be used")
