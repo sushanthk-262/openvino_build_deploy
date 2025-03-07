@@ -10,6 +10,7 @@ import os
 import sys
 import random
 import pygame
+import traceback
 from win10toast import ToastNotifier
 
 # Initialize logging
@@ -72,7 +73,7 @@ def detect_emotions(frame, model, input_layer, output_layer):
 
 def play_music(emotion, music_dir):
     """Play music based on the detected emotion."""
-    emotion_dirs = ["happy", "sad", "angry", "neutral"]
+    emotion_dirs = ["happy", "sad", "angry", "neutral","surprise"]
     emotion_dir = os.path.join(music_dir, emotion_dirs[emotion])
     music_files = [os.path.join(emotion_dir, f) for f in os.listdir(emotion_dir) if f.endswith('.mp3')]
 
