@@ -11,9 +11,9 @@ This project demonstrates head pose estimation using OpenVINO models. It detects
 - Real-time feedback on neck posture
 - Notifications for poor posture (Win10toast notifications)
 
-![Good Posture](demos/fix_your_posture_demo/assets/good.png)
-![Slouching](demos/fix_your_posture_demo/assets/slouch.png)
-![Head Turn](demos/fix_your_posture_demo/assets/headturn.png)
+![Good Posture](assets/good.png)
+![Slouching](assets/slouch.png)
+![Head Turn](assets/headturn.png)
 
 Here are the steps involved in this demo:
 
