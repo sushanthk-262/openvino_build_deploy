@@ -486,10 +486,14 @@ def run_demo(source, theme, model_precision, device, flip):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--stream", default="0", type=str, help="Path to video file or webcam number")
-    parser.add_argument("--theme", default="spooky", choices=["spooky", "santa", "easter"], help="Theme to apply")
-    parser.add_argument("--model_precision", default="FP16-INT8", choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
-    parser.add_argument("--device", default="AUTO", type=str, help="Device for inference")
+    parser.add_argument("--stream", default="0", type=str,
+                        help="Path to video file or webcam number")
+    parser.add_argument("--theme", default="spooky",
+                        choices=["spooky", "santa", "easter"], help="Theme to apply")
+    parser.add_argument("--model_precision", default="FP16-INT8",
+                        choices=["FP16-INT8", "FP16", "FP32"], help="Model precision")
+    parser.add_argument("--device", default="AUTO", type=str,
+                        help="Device for inference")
     parser.add_argument("--flip", type=bool, default=True, help="Mirror input video")
     args = parser.parse_args()
     run_demo(
