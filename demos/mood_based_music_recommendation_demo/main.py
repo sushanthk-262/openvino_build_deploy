@@ -160,7 +160,15 @@ def run_demo(
 
             # Display result
             emotion_text = emotion_labels[emotion]
-            cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)  # Blue color for emotion text
+            cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0),
+                        2, cv2.LINE_AA)  # Blue color for emotion text
+            cv2.putText(
+                frame,
+                f"Emotion: {emotion_text}",
+                (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+                0.8, (255, 0, 0), 2,
+                cv2.LINE_AA)  # Blue color for text
 
             # Add motivational text based on emotion
             if emotion_text in ["neutral", "angry"]:
@@ -172,7 +180,9 @@ def run_demo(
             else:
                 motivational_text = "Let's surprise us with a smile! :)"
 
-            cv2.putText(frame, motivational_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)  # Red color for motivational text
+            cv2.putText(frame, motivational_text, (10, 60), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255),
+                        2, cv2.LINE_AA)  # Red color for motivational text
             cv2.imshow("Emotion Recognition", frame)
 
             if cv2.waitKey(1) & 0xFF == 27:  # Check for ESC key to exit
