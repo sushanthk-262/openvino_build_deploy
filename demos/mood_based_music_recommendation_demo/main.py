@@ -11,7 +11,6 @@ import sys
 import random
 import pygame
 import traceback
-from win10toast import ToastNotifier
 
 # Initialize logging
 logging.basicConfig(level=logging.DEBUG)
@@ -73,7 +72,7 @@ def detect_emotions(frame, model, input_layer, output_layer):
 
 def play_music(emotion, music_dir):
     """Play music based on the detected emotion."""
-    emotion_dirs = ["happy", "sad", "angry", "neutral","surprise"]
+    emotion_dirs = ["happy", "sad", "angry", "neutral", "surprise"]
     emotion_dir = os.path.join(music_dir, emotion_dirs[emotion])
     music_files = [os.path.join(emotion_dir, f) for f in os.listdir(emotion_dir) if f.endswith('.mp3')]
 
@@ -85,8 +84,8 @@ def play_music(emotion, music_dir):
 def run_demo(source, emotion_model_name, model_precision, device, music_dir):
     """Run the emotion recognition demo."""
     cap = None
-    emotion_buffer = collections.deque(maxlen=10)  # Buffer to store emotions for 10 seconds
-    toaster = ToastNotifier()  # Initialize the toaster for notifications
+    emotion_buffer = collections.deque(maxlen=60)  # Buffer to store emotions for 1 minute
+    emotion_labels = ["happy", "sad", "angry", "neutral", "surprise"]  # Define emotion labels
     try:
         # Load model
         emotion_model_path = download_model(emotion_model_name, model_precision)
@@ -100,7 +99,7 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
 
         # Set window properties
         cv2.namedWindow("Emotion Recognition", cv2.WINDOW_NORMAL)
-        cv2.setWindowProperty("Emotion Recognition", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_NORMAL)
+        cv2.resizeWindow("Emotion Recognition", 1280, 720)  # Set window size to 720p
 
         start_time = time.time()
         while True:
@@ -112,17 +111,38 @@ def run_demo(source, emotion_model_name, model_precision, device, music_dir):
             # Detect emotion
             emotion = detect_emotions(frame, emotion_model, emotion_input, emotion_output)
             emotion_buffer.append(emotion)
+            logging.debug(f"Emotion detected: {emotion_labels[emotion]}")
+            logging.debug(f"Emotion buffer: {[emotion_labels[e] for e in emotion_buffer]}")
 
-            # Calculate dominant emotion every 10 seconds
-            if time.time() - start_time > 10:
+            # Calculate dominant emotion every 1 minute
+            if time.time() - start_time > 60:
                 dominant_emotion = max(set(emotion_buffer), key=emotion_buffer.count)
+                logging.info(f"Dominant emotion: {emotion_labels[dominant_emotion]}")
                 play_music(dominant_emotion, music_dir)
                 start_time = time.time()  # Reset the timer
+                emotion_buffer.clear()  # Clear the buffer for the next minute
 
             # Display result
+            emotion_text = emotion_labels[emotion]
+            cv2.putText(frame, f"Emotion: {emotion_text}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2, cv2.LINE_AA)  # Blue color for emotion text
+
+            # Add motivational text based on emotion
+            if emotion_text in ["neutral", "angry"]:
+                motivational_text = "Common! cheer up, let me play a calming song for you :)"
+            elif emotion_text == "sad":
+                motivational_text = "Common now, don't be sad, cheer up!!"
+            elif emotion_text == "happy":
+                motivational_text = "That's the spirit! This song will make you more happier :)"
+            else:
+                motivational_text = "Let's surprise us with a smile! :)"
+
+            cv2.putText(frame, motivational_text, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2, cv2.LINE_AA)  # Red color for motivational text
             cv2.imshow("Emotion Recognition", frame)
 
-            if cv2.waitKey(1) & 0xFF == 27:
+            if cv2.waitKey(1) & 0xFF == 27:  # Check for ESC key to exit
+                break
+
+            if cv2.getWindowProperty("Emotion Recognition", cv2.WND_PROP_VISIBLE) < 1:  # Check if window is closed
                 break
 
     except Exception as e:

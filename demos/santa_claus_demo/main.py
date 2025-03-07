@@ -15,8 +15,8 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import demo_utils as utils
 
 
-EMOTION_CLASSES = ["neutral", "happy", "sad", "surprise", "anger"]
-EMOTION_MAPPING = {"neutral": "Rudolph", "happy": "Cupid", "surprise": "Blitzen", "sad": "Prancer", "anger": "Vixen"}
+EMOTION_CLASSES = ["neutral", "happy", "sad", "surprise", "angry"]
+EMOTION_MAPPING = {"neutral": "Rudolph", "happy": "Cupid", "surprise": "Blitzen", "sad": "Prancer", "angry": "Vixen"}
 
 santa_beard_img = cv2.imread("assets/santa_beard.png", cv2.IMREAD_UNCHANGED)
 santa_cap_img = cv2.imread("assets/santa_cap.png", cv2.IMREAD_UNCHANGED)
