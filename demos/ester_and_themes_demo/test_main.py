@@ -179,29 +179,21 @@ def process_poses(img, pafs, heatmaps, model, decoder):
     output_shape = list(model.output(index=0).partial_shape)
     output_scale = img.shape[1] / output_shape[3].get_length(), img.shape[0] / output_shape[2].get_length()
     poses[:, :, :2] *= output_scale
-    # Ensure poses have confidence scores per keypoint
-    if poses.size > 0 and poses.shape[2] == 2:  # If only x, y coordinates, add placeholder scores
-        keypoint_scores = np.ones((poses.shape[0], poses.shape[1])) * scores[:, np.newaxis]
-        poses = np.concatenate((poses, keypoint_scores[..., np.newaxis]), axis=2)
     return poses, scores
 
 
 def add_artificial_points(poses, scores, skeleton=DEFAULT_SKELETON, threshold=0.25):
-    """
-    Add artificial points to incomplete poses by interpolating missing keypoints based on detected ones.
-    Assumes poses have shape (n_poses, n_keypoints, 3) where the 3rd dimension is (x, y, score).
-    """
     if poses.size == 0:
         return poses, scores
 
     for i in range(len(poses)):
         pose = poses[i]
-        keypoint_scores = pose[:, 2]  # Extract per-keypoint scores
+        keypoint_scores = pose[:, 2]
         valid_points = pose[keypoint_scores > threshold, :2]
         valid_indices = np.where(keypoint_scores > threshold)[0]
 
         if len(valid_points) < 2:
-            continue  # Need at least two points to interpolate
+            continue
 
         new_pose = pose.copy()
 
@@ -228,8 +220,7 @@ def draw_spooky(img, poses, faces, landmarks):
         points = pose[:, :2].astype(np.int32)
         keypoint_scores = pose[:, 2]
         for i, j in DEFAULT_SKELETON:
-            if i < len(keypoint_scores) and j < len(keypoint_scores) and keypoint_scores[i] > 0.25 and keypoint_scores[
-                j] > 0.25:
+            if i < len(keypoint_scores) and j < len(keypoint_scores) and keypoint_scores[i] > 0.25 and keypoint_scores[j] > 0.25:
                 cv2.line(img, tuple(points[i]), tuple(points[j]), (0, 0, 0), 2, cv2.LINE_AA)
                 cv2.line(img, tuple(points[i]), tuple(points[j]), (255, 255, 255), 1, cv2.LINE_AA)
     for (_, box), lm in zip(faces, landmarks):
@@ -282,8 +273,11 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
         player = utils.VideoPlayer(source=source, flip=flip, size=(1280, 720), fps=30)  # Reduced resolution
         player.start()
         title = "Press ESC to Exit"
-        cv2.namedWindow(title, cv2.WINDOW_GUI_NORMAL)
-        cv2.setWindowProperty(title, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+        cv2.namedWindow(title, cv2.WINDOW_AUTOSIZE)
+        
+        # Set window position and size
+        cv2.moveWindow(title, 0, 0)  # Move window to position (100, 100)
+        cv2.resizeWindow(title, 1280, 720)  # Resize window to 1280x720
 
         processing_times = collections.deque(maxlen=200)  # Limit the size of the deque
         while True:
@@ -343,7 +337,6 @@ def run_demo(source, theme, face_detection_model, face_landmarks_model, face_emo
         if player is not None:
             player.stop()
         cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
