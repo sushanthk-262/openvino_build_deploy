@@ -173,9 +173,18 @@ def draw_pose_lines(frame, yaw, pitch, roll, keypoints):
     cv2.line(frame, tuple(center), roll_end, (0, 0, 255), 2)  # Red for roll
 
     # Draw text for yaw, pitch, roll in the center of the face
-    cv2.putText(frame, f"Y: {yaw:.2f}", (center[0] + 10, center[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    cv2.putText(frame, f"P: {pitch:.2f}", (center[0] + 10, center[1] + 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-    cv2.putText(frame, f"R: {roll:.2f}", (center[0] + 10, center[1] + 30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f"Y: {yaw:.2f}",
+                (center[0] + 10, center[1] - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                (0, 255, 0), 2)
+    cv2.putText(frame, f"P: {pitch:.2f}",
+                (center[0] + 10, center[1] + 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                (255, 0, 0), 2)
+    cv2.putText(frame, f"R: {roll:.2f}",
+                (center[0] + 10, center[1] + 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                (0, 0, 255), 2)
 
     return frame
 
