@@ -1,14 +1,14 @@
 
 # Fix Your Posture demo with OpenVINO™
 
-This project utilizes OpenVINO for real-time head pose estimation, detecting faces, keypoints, and head angles (yaw, pitch, roll). It helps monitor neck posture and provides feedback to prevent poor posture habits while using a computer.
+This project utilizes OpenVINO for real-time head pose estimation, detecting faces, keypoints, and head angles (yaw, pitch, and roll). It helps monitor neck posture and provides feedback to prevent poor posture habits while using a computer. Running as a background script, it notifies you when you are not maintaining proper posture without interfering with your day-to-day tasks.
 
 ## Features
 
 - Face detection
 - Keypoint detection
-- Head pose estimation
-- Real-time feedback on neck posture
+- Head pose estimation (Yaw, Pitch and Roll)
+- Real-time feedback on neck posture (Good posture and Slouchy posture)
 - Notifications for poor posture (Win10toast notifications)
 
 ![Good Posture](assets/ypr-good.png)
