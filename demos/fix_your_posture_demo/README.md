@@ -1,7 +1,7 @@
 
 # Fix Your Posture demo with OpenVINO™
 
-This project demonstrates head pose estimation using OpenVINO models. It detects faces, keypoints, and estimates head pose angles (yaw, pitch, roll) to provide feedback on neck posture.
+This project utilizes OpenVINO for real-time head pose estimation, detecting faces, keypoints, and head angles (yaw, pitch, roll). It helps monitor neck posture and provides feedback to prevent poor posture habits while using a computer.
 
 ## Features
 
@@ -62,7 +62,7 @@ cd openvino_build_deploy/demos/fix_your_posture_demo
 To create a virtual environment, open your terminal or command prompt and navigate to the directory where you want to create the environment. Then, run the following command:
 
 ```shell
-python3 -m venv venv
+python -m venv venv
 ```
 This will create a new virtual environment named "venv" in the current directory.
 
@@ -92,7 +92,7 @@ pip install -r requirements.txt
 To run the application, use the following command:
 
 ```shell
-python main.py --stream 0
+python main.py --stream 0 --flip True
 ```
 
 To change the models, precision or device use:
